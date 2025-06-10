@@ -105,7 +105,7 @@ const Results = ({ score, totalQuestions, onRestart }) => {
                             Return Home
                         </button>
                         <button
-                            onClick ={ navigate(`/review-exam-results/${resultId?.resultId}`)}
+                            onClick={() => navigate(`/review-exam-results/${resultId?.resultId}`)}
                             className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-full shadow hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2 font-semibold text-lg"
                         >
                             <Eye className="inline" />

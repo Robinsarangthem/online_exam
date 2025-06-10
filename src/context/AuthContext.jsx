@@ -10,7 +10,11 @@ export const AuthProvider = ({ children }) => {
     console.log(isAuthenticated)
 
     const login = () => setIsAuthenticated(true);
-    const logout = () => setIsAuthenticated(false);
+    const logout = () => {
+        localStorage.removeItem('student');
+        
+        setIsAuthenticated(false);
+    };
 
     return (
         <AuthContext.Provider value={{ isAuthenticated, login, logout }}>

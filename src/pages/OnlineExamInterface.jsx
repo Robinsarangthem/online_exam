@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation } from "@tanstack/react-query";
 import { SubmitExam } from "../api/apiService";
-import { replace, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { BookOpen } from "lucide-react";
+import { toast } from 'react-toastify';
 
 export default function OnlineExamInterface({
   question,
@@ -22,7 +23,32 @@ export default function OnlineExamInterface({
   const [showWarning, setShowWarning] = useState(false);
   const [violations, setViolations] = useState(0);
   
-  const StudentId = JSON.parse(localStorage.getItem("student")) || null;
+  const studentRaw = localStorage.getItem("student");
+  let StudentId = null;
+  try {
+    StudentId = studentRaw ? JSON.parse(studentRaw) : null;
+  } catch (e) {
+    StudentId = null;
+  }
+
+  // Submit exam mutation
+  const { mutate: submitExam, isPending } = useMutation({
+    mutationFn: (examData) =>
+      SubmitExam(
+        examData.examId,
+        examData.studentId,
+        examData.answers,
+      ),
+    onSuccess: (data) => {
+      console.log("✅ Exam submitted successfully:", data);
+      navigate(`/results/${data.resultId}`, { replace: true });
+    },
+    onError: (error) => {
+      console.error("❌ Error submitting exam:", error);
+      // Add user-friendly error handling
+      alert("Failed to submit exam. Please try again.");
+    }
+  });
 
   // Protection Effects
   useEffect(() => {
@@ -35,7 +61,7 @@ export default function OnlineExamInterface({
 
     // Disable common keyboard shortcuts
     const handleKeyDown = (e) => {
-      const violations = [
+      const violationsList = [
         { key: 'F12', ctrl: false, shift: false },
         { key: 'I', ctrl: true, shift: true },
         { key: 'C', ctrl: true, shift: true },
@@ -48,9 +74,9 @@ export default function OnlineExamInterface({
         { key: 'PrintScreen', ctrl: false, shift: false }
       ];
 
-      const isViolation = violations.some(v => 
+      const isViolation = violationsList.some(v => 
         e.key === v.key && 
-        e.ctrlKey === v.ctrl && 
+        // e.ctrlKey === v.ctrl && 
         e.shiftKey === v.shift
       );
 
@@ -61,39 +87,10 @@ export default function OnlineExamInterface({
       }
     };
 
-    // Disable text selection and drag
-    const disableSelection = (e) => {
-      e.preventDefault();
-      return false;
-    };
-
-    // Detect tab switching/window blur
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setViolations(prev => prev + 1);
-        setShowWarning(true);
-        console.warn("⚠️ Tab switching detected during exam!");
-      }
-    };
-
-    // Disable printing
-    const handlePrint = (e) => {
-      e.preventDefault();
-      setViolations(prev => prev + 1);
-      return false;
-    };
-
     // Add all event listeners
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('selectstart', disableSelection);
-    document.addEventListener('dragstart', disableSelection);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeprint', handlePrint);
-
-    // Disable text selection via CSS
     document.body.style.userSelect = 'none';
-    document.body.style.webkitUserSelect = 'none';
     document.body.style.mozUserSelect = 'none';
     document.body.style.msUserSelect = 'none';
 
@@ -101,16 +98,24 @@ export default function OnlineExamInterface({
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('selectstart', disableSelection);
-      document.removeEventListener('dragstart', disableSelection);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeprint', handlePrint);
-      
-      // Reset styles
       document.body.style.userSelect = '';
-      document.body.style.webkitUserSelect = '';
       document.body.style.mozUserSelect = '';
       document.body.style.msUserSelect = '';
+    };
+  }, []);
+
+  // Detect tab switching/window blur
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        setViolations(prev => prev + 1);
+        setShowWarning(true);
+        console.warn("⚠️ Tab switching detected during exam!");
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, []);
 
@@ -146,35 +151,16 @@ export default function OnlineExamInterface({
     };
   }, []);
 
-  // Auto-hide warning after 5 seconds
-  useEffect(() => {
-    if (showWarning) {
-      const timer = setTimeout(() => {
-        setShowWarning(false);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [showWarning]);
-
-  const { mutate: submitExam, isPending } = useMutation({
-    mutationFn: (examData) =>
-      SubmitExam(
-        examData.examId,
-        examData.studentId,
-        examData.answers
-      ),
-    onSuccess: (data) => {
-      console.log("✅ Exam submitted successfully:", data);
-      navigate(`/results/${data.resultId}`, { replace: true });
-    },
-    onError: (error) => {
-      console.error("❌ Error submitting exam:", error);
-    }
-  });
-
   const handleSubmit = () => {
     if (!selectedExam?._id) {
       console.error("No exam ID found");
+      alert("Error: No exam selected");
+      return;
+    }
+
+    if (!StudentId?.id) {
+      console.error("No student ID found");
+      toast.error("Error: Student not authenticated");
       return;
     }
 
@@ -185,22 +171,16 @@ export default function OnlineExamInterface({
     }));
 
     // Include violation count in submission
-    submitExam({
+    const examData = {
       examId,
-      studentId: StudentId?.id,
+      studentId: StudentId.id,
       answers,
-      violations // Track security violations
-    });
+    };
 
-    console.log("📤 Submitting exam data:", {
-      examId,
-      studentId: StudentId?.id,
-      answers,
-      violations
-    });
+    console.log("📤 Submitting exam data:", examData);
+    submitExam(examData);
   };
 
-  // Content blur style when recording detected
   const contentStyle = {
     filter: isRecording ? 'blur(10px)' : 'none',
     transition: 'filter 0.3s ease',
