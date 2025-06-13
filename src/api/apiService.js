@@ -22,8 +22,7 @@ export const AdminLogin = async (loginData) => {
 	try {
 		const response = await Axios.post('/api/admin/login', loginData)
 		if (response?.data) {
-
-			localStorage.setItem("adminData", JSON.stringify(response?.data?.teacher))
+			localStorage.setItem('adminData', JSON.stringify(response?.data?.teacher))
 			return response.data
 		}
 	} catch (error) {
@@ -38,7 +37,7 @@ export const Examlist = async () => {
 		return response.data
 	} catch (error) {
 		console.error('Failed to fetch exam list:', error)
-		throw error
+		throw error	
 	}
 }
 export const ExamDetails = async (examId) => {

@@ -26,13 +26,13 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
       {/* //dashboard route for admin */}
+      <Route element={<ProtectedRoute />}>
       <Route path='/admin' element={<AdminDashboard />}>
         <Route path='dashboard' element={<HomeDashboard />} />
         <Route path='exam-questions' element={<ExamManagement />} />
       </Route>
       {/* //main routes */}
       
-      <Route element={<ProtectedRoute />}>
       <Route path='/' element={<WelcomePage />} />
       <Route path='/online-exam' element={<MainLayout />}/>
       <Route path='/results/:resultId' element={<Results />} /> 

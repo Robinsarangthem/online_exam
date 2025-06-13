@@ -3,7 +3,6 @@ import { useAdmin } from "../../../context/AdminContext";
 
 export default function Header() {
     const {adminData} = useAdmin()
-    console.log(adminData)
 return (
    <header className="bg-white shadow-lg border-b border-gray-100 px-4 sm:px-8 py-3 sm:py-4 fixed top-0 right-0 left-0 md:left-64 z-10">
     <div className="flex items-center justify-between gap-4">

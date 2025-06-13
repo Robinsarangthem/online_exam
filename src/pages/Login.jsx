@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { AdminLogin, StudentLogin } from '../api/apiService';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginForms() {
+  const {login} = useAuth()
   const [loginType, setLoginType] = useState('student');
   const [formData, setFormData] = useState({
     studentID: '',
@@ -32,6 +34,7 @@ export default function LoginForms() {
           studentID: formData.studentID,
           studentName: formData.studentName
         }));
+        login()
          window.location.href = '/';
       },
       onError: (error) => {
@@ -42,10 +45,15 @@ export default function LoginForms() {
 
   const {mutate: adminMutation, isPending: adminPending, isError: adminError} = useMutation({
     mutationFn: AdminLogin,
-    onSuccess: () => {
+    onSuccess: (response) => {
+      console.log(response?.admin,"admin response");  
+      login();
       toast.success('Admin login successful');
-      navigate('admin/dashboard')
-     
+      window.location.href = '/admin/dashboard';
+
+      // localStorage.setItem('adminData', JSON.stringify({
+        
+      // }));
     },
     onError: (error) => {
       toast.error('Admin login failed');

@@ -1,23 +1,39 @@
 import { createContext, useContext, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(
-		!!localStorage.getItem('user')
-	)
-    console.log(isAuthenticated)
+        !!localStorage.getItem('user') || !!localStorage.getItem('adminData')
+    );
 
-    const login = () => setIsAuthenticated(true);
+    // Optionally, track role if needed
+    const [role, setRole] = useState(
+        localStorage.getItem('adminData') ? 'admin' : (localStorage.getItem('user') ? 'user' : null)
+    );
+
+
+    const login = (userRole = 'user') => {
+        if (userRole === 'admin') {
+            localStorage.setItem('adminData', 'true');
+            setRole('admin');
+        } else {
+            localStorage.setItem('user', 'true');
+            setRole('user');
+        }
+        setIsAuthenticated(true);
+    };
+
     const logout = () => {
-        localStorage.removeItem('student');
-        
+        localStorage.removeItem('user');
+        localStorage.removeItem('adminData');
         setIsAuthenticated(false);
+        setRole(null);
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, login, logout, role }}>
             {children}
         </AuthContext.Provider>
     );

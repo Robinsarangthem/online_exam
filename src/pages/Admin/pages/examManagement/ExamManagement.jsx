@@ -1,51 +1,11 @@
 import React, { useState } from 'react'
 import QuizeQuestionCreate from './QuizeQuestionCreate';
 import { Edit, Eye, Plus, Trash2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Examlist } from '../../../../api/apiService';
 
 export default function ExamManagement() {
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [exams, setExams] = useState([
-    {
-      id: 'EX001',
-      title: 'Mathematics Final Exam',
-      subject: 'Mathematics',
-      duration: 120,
-      totalQuestions: 50,
-      passingScore: 60,
-      status: 'Active',
-      createdDate: '2024-06-01',
-      scheduledDate: '2024-06-15',
-      enrolledStudents: 45,
-      completedStudents: 12
-    },
-    {
-      id: 'EX002',
-      title: 'Physics Midterm',
-      subject: 'Physics',
-      duration: 90,
-      totalQuestions: 40,
-      passingScore: 55,
-      status: 'Scheduled',
-      createdDate: '2024-06-02',
-      scheduledDate: '2024-06-20',
-      enrolledStudents: 38,
-      completedStudents: 0
-    },
-    {
-      id: 'EX003',
-      title: 'Chemistry Quiz 1',
-      subject: 'Chemistry',
-      duration: 45,
-      totalQuestions: 25,
-      passingScore: 70,
-      status: 'Completed',
-      createdDate: '2024-05-25',
-      scheduledDate: '2024-05-30',
-      enrolledStudents: 42,
-      completedStudents: 42
-    }
-  ]);
-
   const [newExam, setNewExam] = useState({
     title: '',
     subject: '',
@@ -56,30 +16,38 @@ export default function ExamManagement() {
     instructions: ''
   });
 
-  const handleCreateExam = () => {
-    if (newExam.title && newExam.subject && newExam.duration) {
-      const examId = `EX${String(exams.length + 1).padStart(3, '0')}`;
-      const exam = {
-        id: examId,
-        ...newExam,
-        status: 'Draft',
-        createdDate: new Date().toISOString().split('T')[0],
-        enrolledStudents: 0,
-        completedStudents: 0
-      };
-      setExams([...exams, exam]);
-      setNewExam({
-        title: '',
-        subject: '',
-        duration: '',
-        totalQuestions: '',
-        passingScore: '',
-        scheduledDate: '',
-        instructions: ''
-      });
-      setShowCreateForm(false);
-    }
-  };
+  const {data:examList, isLoading } = useQuery({
+    queryKey: ['examList'],
+    queryFn:Examlist,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  })
+  console.log(examList,"exam Data");
+  // const handleCreateExam = () => {
+  //   if (newExam.title && newExam.subject && newExam.duration) {
+  //     const examId = `EX${String(exams.length + 1).padStart(3, '0')}`;
+  //     const exam = {
+  //       id: examId,
+  //       ...newExam,
+  //       status: 'Draft',
+  //       createdDate: new Date().toISOString().split('T')[0],
+  //       enrolledStudents: 0,
+  //       completedStudents: 0
+  //     };
+  //     setExams([...exams, exam]);
+  //     setNewExam({
+  //       title: '',
+  //       subject: '',
+  //       duration: '',
+  //       totalQuestions: '',
+  //       passingScore: '',
+  //       scheduledDate: '',
+  //       instructions: ''
+  //     });
+  //     setShowCreateForm(false);
+  //   }
+  // };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -93,6 +61,7 @@ export default function ExamManagement() {
 
   if (showCreateForm) {
     return (
+
         <QuizeQuestionCreate setShowCreateForm= {setShowCreateForm}/>
     //   <div className="space-y-6">
     //     <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
@@ -232,16 +201,16 @@ export default function ExamManagement() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl">
             <h3 className="text-lg font-semibold mb-2">Total Exams</h3>
-            <p className="text-3xl font-bold">{exams.length}</p>
+            <p className="text-3xl font-bold">{examList?.length}</p> 
           </div>
-          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl">
+          {/* <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl">
             <h3 className="text-lg font-semibold mb-2">Active Exams</h3>
-            <p className="text-3xl font-bold">{exams.filter(e => e.status === 'Active').length}</p>
+            <p className="text-3xl font-bold">{examList.filter(e => e.status === 'Active').length}</p>
           </div>
           <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-xl">
             <h3 className="text-lg font-semibold mb-2">Completed Exams</h3>
-            <p className="text-3xl font-bold">{exams.filter(e => e.status === 'Completed').length}</p>
-          </div>
+            <p className="text-3xl font-bold">{examList.filter(e => e.status === 'Completed').length}</p>
+          </div> */}
         </div>
 
         <div className="overflow-x-auto">
@@ -253,29 +222,20 @@ export default function ExamManagement() {
                 <th className="text-left py-4 px-4 font-semibold text-gray-700">Subject</th>
                 <th className="text-left py-4 px-4 font-semibold text-gray-700">Duration</th>
                 <th className="text-left py-4 px-4 font-semibold text-gray-700">Questions</th>
-                <th className="text-left py-4 px-4 font-semibold text-gray-700">Students</th>
-                <th className="text-left py-4 px-4 font-semibold text-gray-700">Status</th>
                 <th className="text-left py-4 px-4 font-semibold text-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {exams.map((exam) => (
-                <tr key={exam.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+              {examList?.map((exam) => (
+                <tr key={exam._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="py-4 px-4 font-mono text-sm bg-gray-100 rounded">
-                    {exam.id}
+                    {exam._id}
                   </td>
-                  <td className="py-4 px-4 font-medium text-gray-800">{exam.title}</td>
-                  <td className="py-4 px-4 text-gray-600">{exam.subject}</td>
+                  <td className="py-4 px-4 font-medium text-gray-800">{exam .title}</td>
+                  <td className="py-4 px-4 text-gray-600">{exam?.subject}</td>
                   <td className="py-4 px-4 text-gray-600">{exam.duration} min</td>
-                  <td className="py-4 px-4 text-gray-600">{exam.totalQuestions}</td>
-                  <td className="py-4 px-4 text-gray-600">
-                    {exam.completedStudents}/{exam.enrolledStudents}
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(exam.status)}`}>
-                      {exam.status}
-                    </span>
-                  </td>
+                  <td className="py-4 px-4 text-gray-600">{exam.questions.length}</td>
+                 
                   <td className="py-4 px-4">
                     <div className="flex space-x-2">
                       <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View Details">
@@ -298,4 +258,3 @@ export default function ExamManagement() {
     </div>
   );
 };
-

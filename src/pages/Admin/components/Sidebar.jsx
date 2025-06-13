@@ -8,7 +8,8 @@ import {
   LogOut
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, replace, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 // Sidebar Component
 export const Sidebar = ({ activeTab, setActiveTab }) => {
@@ -30,10 +31,13 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
 
 const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 const navigate = useNavigate();
+const {logout} = useAuth()
+
 
 const handleLogout = () => {
-    localStorage.clear();
-    navigate('/login');
+    logout()
+    navigate('auth/login',replace);
+    
 };
 
 return (
