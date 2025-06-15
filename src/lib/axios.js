@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Remove any trailing slash
-export const url = process.env.VITE_API_URL 
+export const url = import.meta.env.VITE_API_URL
 console.log('🔗 API URL:', url);
 console.log('Environment check:', {
   NODE_ENV: process.env.NODE_ENV,
