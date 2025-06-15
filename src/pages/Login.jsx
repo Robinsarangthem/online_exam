@@ -27,19 +27,27 @@ export default function LoginForms() {
     const {mutate: studentMutation, isPending: studentPending, isError: studentError} = useMutation({
       mutationFn: StudentLogin,
       onSuccess: (response) => {
-        // Check the structure of the response and log it for debugging
+        // Debug log to inspect the response structure in all environments
         console.log('Student login response:', response);
-        // Try to access the student data from different possible response structures
+
+        // Try to extract student data from all possible locations
         let studentData = null;
         if (response?.student) {
           studentData = response.student;
         } else if (response?.data?.student) {
           studentData = response.data.student;
-        } else if (response?.data && typeof response.data === 'object') {
-          studentData = response.data;
-        } else if (typeof response === 'object') {
+        } else if (response?.data && typeof response.data === 'object' && response.data !== null) {
+          if (response.data.student) {
+            studentData = response.data.student;
+          } else {
+            studentData = response.data;
+          }
+        } else if (typeof response === 'object' && response !== null) {
           studentData = response;
         }
+
+        // Additional debug log to help diagnose in production
+        console.log('Extracted studentData:', studentData);
 
         if (studentData && Object.keys(studentData).length > 0) {
           toast.success('Student login successful');
