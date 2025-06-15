@@ -24,46 +24,41 @@ export default function LoginForms() {
     });
   };
 
-    const {mutate: studentMutation, isPending: studentPending, isError: studentError} = useMutation({
-      mutationFn: StudentLogin,
-      onSuccess: (response) => {
-        // Debug log to inspect the response structure in all environments
-        console.log('Student login response:', response);
+   const {mutate: studentMutation, isPending: studentPending, isError: studentError} = useMutation({
+  mutationFn: StudentLogin,
+  onSuccess: (response) => {
+    console.log('Student login response:', response);
 
-        // Try to extract student data from all possible locations
-        let studentData = null;
-        if (response?.student) {
-          studentData = response.student;
-        } else if (response?.data?.student) {
-          studentData = response.data.student;
-        } else if (response?.data && typeof response.data === 'object' && response.data !== null) {
-          if (response.data.student) {
-            studentData = response.data.student;
-          } else {
-            studentData = response.data;
-          }
-        } else if (typeof response === 'object' && response !== null) {
-          studentData = response;
-        }
+    const studentData = response?.student || response?.data?.student || response?.data || response;
+    console.log('Extracted studentData:', studentData);
 
-        // Additional debug log to help diagnose in production
-        console.log('Extracted studentData:', studentData);
-
-        if (studentData && Object.keys(studentData).length > 0) {
-          toast.success('Student login successful');
-          localStorage.setItem('student', JSON.stringify(studentData));
-          window.location.href = '/';
-          login();
-        } else {
-          toast.error('Student data not found in response');
-          console.error('Student data not found in response:', response);
-        }
-      },
-      onError: (error) => {
-        toast.error('Student login failed');
-        console.error('Login failed:', error);
-      }
-    });
+    if (studentData && typeof studentData === 'object' && Object.keys(studentData).length > 0) {
+      toast.success('Student login successful');
+      localStorage.setItem('student', JSON.stringify(studentData));
+      login();
+      window.location.href = '/';
+    } else {
+      toast.error('Student data not found in response');
+      console.error('Student data not found in response:', response);
+    }
+  },
+  onError: (error) => {
+    console.error('Login failed - Full error object:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    // More specific error messages
+    if (error.message.includes('net::ERR_FAILED')) {
+      toast.error('Cannot connect to server. Please check your internet connection.');
+    } else if (error.message.includes('404')) {
+      toast.error('Login endpoint not found. Please contact support.');
+    } else if (error.message.includes('500')) {
+      toast.error('Server error. Please try again later.');
+    } else {
+      toast.error(`Login failed: ${error.message}`);
+    }
+  }
+});
 
   const {mutate: adminMutation, isPending: adminPending, isError: adminError} = useMutation({
     mutationFn: AdminLogin,
