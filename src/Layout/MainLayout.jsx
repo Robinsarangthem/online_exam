@@ -1,130 +1,129 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import OnlineExamInterface from "../pages/OnlineExamInterface";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Examlist, SubmitExam } from "../api/apiService";
+import { useQuery } from "@tanstack/react-query";
+import { Examlist } from "../api/apiService";
 import Sidebar from "../components/Sidebar/Sidebar";
 import Header from "../components/Header/Header";
 import Loading from "../components/ui/Loading";
 
 export default function MainLayout() {
-const [selectedAnswer, setSelectedAnswer] = useState({});
-const [currentQuestion, setCurrentQuestion] = useState(1);
-const [flaggedQuestions, setFlaggedQuestions] = useState([]);
-const [selectedSubject, setSelectedSubject] = useState(""); 
-const [examStarted, setExamStarted] = useState(false);
-const [remainingTime, setRemainingTime] = useState(0);
-const timerRef = useRef(null);
+  const [selectedAnswer, setSelectedAnswer] = useState({});
+  const [currentQuestion, setCurrentQuestion] = useState(1);
+  const [flaggedQuestions, setFlaggedQuestions] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState(""); 
+  const [remainingTime, setRemainingTime] = useState(0);
 
+  const {data, isLoading, isError} = useQuery({
+    queryKey: ['exam-Questions'],
+    queryFn: Examlist
+  });
 
+  // Prepare subject list
+  const selectSubject = Array.isArray(data) && data.length > 0 ? data.map((subject) => subject) : [];
 
+  // Loading and error states
+  if (isLoading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <Loading/>
+    </div>
+  );
 
-const {data, isLoading, isError} = useQuery({
-  queryKey: ['exam-Questions'],
-  queryFn: Examlist
-});
-
-
-const selectSubject = data?.map((subject) => subject) || [];
-
-if (isLoading) return (
-  <div className="flex items-center justify-center min-h-screen">
-    <Loading/>
-  </div>
-);
-
-
-if (isError) return <div className="flex items-center justify-center min-h-screen text-rose-400">Error loading questions</div>;
-if (!data || data.length === 0) return <div>No questions available</div>;
-
-const currentSubjectQuestions = selectedSubject 
-  ? data.find(subject => subject._id === selectedSubject)?.questions || []
-  : [];
-
-const question = currentSubjectQuestions[currentQuestion - 1] || {
-  id: 0,
-  text: "Please select a subject",
-  options: []
-};
-
-const handleSelectSubject = (subjectId) => {
-  setSelectedSubject(subjectId);
-  // Get the selected exam details from the data
-  const selectedExam = data.find(exam => exam._id === subjectId);
-  // console.log('Selected Exam ID:', selectedExam?._id); // This will log the exam ID
-  // console.log('Selected Exam:', selectedExam); // This will log the entire exam object
-  
-  setCurrentQuestion(1);
-  setSelectedAnswer('');
-  setFlaggedQuestions([]);
-};
-
-const handleNext = () => {
-  if (currentQuestion < currentSubjectQuestions.length) {
-    setCurrentQuestion(currentQuestion + 1);
+  if (isError) return <div className="flex items-center justify-center min-h-screen text-rose-400">Error loading questions</div>;
+  if (!Array.isArray(data) || data.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <div className="bg-white shadow-lg rounded-lg p-8 flex flex-col items-center">
+          <svg
+            className="w-16 h-16 text-gray-400 mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 48 48"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx="24" cy="24" r="22" strokeWidth="4" stroke="currentColor" fill="none"/>
+            <path d="M16 20h16M16 28h8" strokeWidth="3" strokeLinecap="round" stroke="currentColor"/>
+          </svg>
+          <h2 className="text-2xl font-semibold text-gray-700 mb-2">No Exam Schedule</h2>
+          <p className="text-gray-500 mb-4 text-center">
+            There are currently no questions available for this exam.<br />
+            Please check back later or contact your administrator.
+          </p>
+          <button
+            className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            onClick={() => window.location.reload()}
+          >
+            Reload
+          </button>
+        </div>
+      </div>
+    );
   }
-};
-const handlePrevious = () => {
-  if (currentQuestion > 1) {
-    setCurrentQuestion(currentQuestion - 1);
-  }
-};
-const handleFlag = () => {
-  const isAlreadyFlagged = flaggedQuestions.includes(currentQuestion);
-  if (isAlreadyFlagged) {
-    setFlaggedQuestions(flaggedQuestions.filter(q => q !== currentQuestion));
-  } else {
-    setFlaggedQuestions([...flaggedQuestions, currentQuestion]);
-  }
-};
 
-const handleAnswerSelect = (questionId, answer) => {
-  setSelectedAnswer((prevAnswers) => ({
-    ...prevAnswers,
-    [questionId]: answer,
-  }));
-};
+  // Get current subject's questions
+  const currentSubjectQuestions = selectedSubject 
+    ? (data.find(subject => subject._id === selectedSubject)?.questions || [])
+    : [];
 
+  // Handlers
+  const handleSelectSubject = (subjectId) => {
+    setSelectedSubject(subjectId);
+    setCurrentQuestion(1);
+    setSelectedAnswer({});
+    setFlaggedQuestions([]);
+  };
 
-// useEffect(() => {
-//   if (examStarted && remainingTime > 0) {
-//     timerRef.current = setTimeout(() => {
-//       setRemainingTime(remainingTime - 1);
-//     }, 1000);
-//   } else if (remainingTime === 0 && examStarted) {
-//     setExamStarted(false);
-//     // Optionally handle exam end here
-//   }
-//   return () => clearTimeout(timerRef.current);
-// }, [examStarted, remainingTime]);
+  const handlePrevious = () => {
+    if (currentQuestion > 1) {
+      setCurrentQuestion(currentQuestion - 1);
+    }
+  };
 
-const startExam = (subjectId) => {
-  const selectedExam = data.find(exam => exam._id === subjectId);
-  if (selectedExam && selectedExam.duration) {
-    setRemainingTime(selectedExam.duration * 60); // assuming duration is in minutes
-    setExamStarted(true);
-  }
-};
+  const handleFlag = () => {
+    const isAlreadyFlagged = flaggedQuestions.includes(currentQuestion);
+    if (isAlreadyFlagged) {
+      setFlaggedQuestions(flaggedQuestions.filter(q => q !== currentQuestion));
+    } else {
+      setFlaggedQuestions([...flaggedQuestions, currentQuestion]);
+    }
+  };
 
-const handleSelectSubjectWithStart = (subjectId) => {
-  handleSelectSubject(subjectId);
-  startExam(subjectId);
-};
+  const handleAnswerSelect = (questionId, answer) => {
+    setSelectedAnswer((prevAnswers) => ({
+      ...prevAnswers,
+      [questionId]: answer,
+    }));
+  };
 
+  // Exam start logic
+  const startExam = (subjectId) => {
+    if (!Array.isArray(data) || data.length === 0) return;
+    const selectedExam = data.find(exam => exam._id === subjectId);
+    if (selectedExam && selectedExam.duration) {
+      setRemainingTime(selectedExam.duration * 60); // assuming duration is in minutes
+    }
+  };
 
-return (
-  <div className="min-h-screen bg-gray-100">
-    <Header 
-    totalQuestions={currentSubjectQuestions.length}
-    examStarted={handleSelectSubjectWithStart}
-    answeredQuestions={Object.keys(selectedAnswer).length}
-    remainingTime={remainingTime}
-    />
+  const handleSelectSubjectWithStart = (subjectId) => {
+    handleSelectSubject(subjectId);
+    startExam(subjectId);
+  };
 
+  // Get current question object
+  const question = currentSubjectQuestions[currentQuestion - 1];
+
+  // Next handler
+  const handleNext = () => {
+    if (currentQuestion < currentSubjectQuestions.length) {
+      setCurrentQuestion(currentQuestion + 1);
+    }
+  };
+
+  return (
     <div className="flex">
       <Sidebar
         selectSubject={selectSubject}
         selectedSubject={selectedSubject} 
-        handleSelectSubject={handleSelectSubject}
+        handleSelectSubject={handleSelectSubjectWithStart}
         flaggedQuestions={flaggedQuestions}
         currentQuestion={currentQuestion}
         setCurrentQuestion={setCurrentQuestion}
@@ -132,6 +131,7 @@ return (
         selectedAnswer={selectedAnswer}
         setSelectedAnswer={setSelectedAnswer}
       />
+
       <OnlineExamInterface 
         handleNext={handleNext}
         question={question}
@@ -143,9 +143,14 @@ return (
         selectedAnswer={selectedAnswer}
         totalQuestions={currentSubjectQuestions.length}
         selectedSubject={selectedSubject}
-        selectedExam = {data.find(exam => exam._id === selectedSubject) || {}}
+        selectedExam={
+          Array.isArray(data) && data.length > 0
+            ? (data.find(exam => exam._id === selectedSubject) || {})
+            : {}
+        }
+        answeredQuestions={Object.keys(selectedAnswer).length}
+        remainingTime={remainingTime}
       />
     </div>
-  </div>    
-)
+  );
 }

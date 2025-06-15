@@ -186,6 +186,29 @@ export default function OnlineExamInterface({
     transition: 'filter 0.3s ease',
   };
 
+  // Exam Not Found UI
+  if (!selectedExam) {
+    return (
+      <main className="flex-1 p-8 flex items-center justify-center min-h-[60vh]">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 flex flex-col items-center justify-center">
+          <svg className="w-24 h-24 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="4" fill="white" />
+            <path d="M24 16v10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+            <circle cx="24" cy="34" r="2.5" fill="currentColor" />
+          </svg>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Exam Not Found</h2>
+          <p className="text-gray-600 mb-4">The exam you are trying to access could not be found. Please check your link or contact your instructor.</p>
+          <button
+            onClick={() => navigate('/')}
+            className="mt-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Go to Home
+          </button>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="flex-1 p-8" style={contentStyle}>
       {/* Security Warning Banner */}

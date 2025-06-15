@@ -1,19 +1,32 @@
+// import { defineConfig } from 'vite'
+// import react from '@vitejs/plugin-react'
+
+// export default defineConfig({
+//   plugins: [react()],
+//   server: {
+//     proxy: {
+//       '/api': {
+//         target: 'https://online-exam-backend.vercel.app',
+//         changeOrigin: true,
+//         secure: true, // Change to true for HTTPS
+//         // Remove the rewrite line
+//       }
+//     },
+//   }
+// })
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react';
-// https://vite.dev/config/
+import react from '@vitejs/plugin-react'
+
 export default defineConfig({
-  plugins: [
-    react()
-  ],  
+  plugins: [react()],
   server: {
-    https: {
-      key: './smart-restaurant-privateKey.key',
-      cert: './smart-restaurant.crt',
+    proxy: {
+      '/api': {
+        target: 'https://online-exam-backend.vercel.app',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, '') // Keep this if backend has no /api prefix
+      }
     },
-  },
-  // resolve: {
-  //   alias: {
-  //     '@': fileURLToPath(new URL('./src', import.meta.url)),
-  //   },
-  // },
+  }
 })

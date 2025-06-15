@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(
-        !!localStorage.getItem('user') || !!localStorage.getItem('adminData')
+        !!localStorage.getItem('student') || !!localStorage.getItem('adminData')
     );
 
     // Optionally, track role if needed

@@ -63,124 +63,6 @@ export default function ExamManagement() {
     return (
 
         <QuizeQuestionCreate setShowCreateForm= {setShowCreateForm}/>
-    //   <div className="space-y-6">
-    //     <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-    //       <div className="flex justify-between items-center mb-6">
-    //         <h2 className="text-2xl font-bold text-gray-800">Create New Exam</h2>
-    //         <button
-    //           onClick={() => setShowCreateForm(false)}
-    //           className="text-gray-500 hover:text-gray-700 transition-colors"
-    //         >
-    //           <span className="text-2xl">×</span>
-    //         </button>
-    //       </div>
-
-    //       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    //         <div className="space-y-4">
-    //           <div>
-    //             <label className="block text-sm font-medium text-gray-700 mb-2">Exam Title</label>
-    //             <input
-    //               type="text"
-    //               value={newExam.title}
-    //               onChange={(e) => setNewExam({...newExam, title: e.target.value})}
-    //               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-    //               placeholder="Enter exam title"
-    //             />
-    //           </div>
-
-    //           <div>
-    //             <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-    //             <select
-    //               value={newExam.subject}
-    //               onChange={(e) => setNewExam({...newExam, subject: e.target.value})}
-    //               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-    //             >
-    //               <option value="">Select Subject</option>
-    //               <option value="Mathematics">Mathematics</option>
-    //               <option value="Physics">Physics</option>
-    //               <option value="Chemistry">Chemistry</option>
-    //               <option value="Biology">Biology</option>
-    //               <option value="English">English</option>
-    //               <option value="History">History</option>
-    //             </select>
-    //           </div>
-
-    //           <div>
-    //             <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
-    //             <input
-    //               type="number"
-    //               value={newExam.duration}
-    //               onChange={(e) => setNewExam({...newExam, duration: e.target.value})}
-    //               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-    //               placeholder="120"
-    //             />
-    //           </div>
-
-    //           <div>
-    //             <label className="block text-sm font-medium text-gray-700 mb-2">Total Questions</label>
-    //             <input
-    //               type="number"
-    //               value={newExam.totalQuestions}
-    //               onChange={(e) => setNewExam({...newExam, totalQuestions: e.target.value})}
-    //               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-    //               placeholder="50"
-    //             />
-    //           </div>
-    //         </div>
-
-    //         <div className="space-y-4">
-    //           <div>
-    //             <label className="block text-sm font-medium text-gray-700 mb-2">Passing Score (%)</label>
-    //             <input
-    //               type="number"
-    //               value={newExam.passingScore}
-    //               onChange={(e) => setNewExam({...newExam, passingScore: e.target.value})}
-    //               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-    //               placeholder="60"
-    //               min="0"
-    //               max="100"
-    //             />
-    //           </div>
-
-    //           <div>
-    //             <label className="block text-sm font-medium text-gray-700 mb-2">Scheduled Date</label>
-    //             <input
-    //               type="date"
-    //               value={newExam.scheduledDate}
-    //               onChange={(e) => setNewExam({...newExam, scheduledDate: e.target.value})}
-    //               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-    //             />
-    //           </div>
-
-    //           <div>
-    //             <label className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
-    //             <textarea
-    //               value={newExam.instructions}
-    //               onChange={(e) => setNewExam({...newExam, instructions: e.target.value})}
-    //               rows={4}
-    //               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-    //               placeholder="Enter exam instructions for students..."
-    //             />
-    //           </div>
-    //         </div>
-    //       </div>
-
-    //       <div className="flex justify-end space-x-4 mt-8">
-    //         <button
-    //           onClick={() => setShowCreateForm(false)}
-    //           className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-    //         >
-    //           Cancel
-    //         </button>
-    //         <button
-    //           onClick={handleCreateExam}
-    //           className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200"
-    //         >
-    //           Create Exam
-    //         </button>
-    //       </div>
-    //     </div>
-    //   </div>
     );
   }
 
@@ -226,31 +108,38 @@ export default function ExamManagement() {
               </tr>
             </thead>
             <tbody>
-              {examList?.map((exam) => (
-                <tr key={exam._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-4 font-mono text-sm bg-gray-100 rounded">
-                    {exam._id}
-                  </td>
-                  <td className="py-4 px-4 font-medium text-gray-800">{exam .title}</td>
-                  <td className="py-4 px-4 text-gray-600">{exam?.subject}</td>
-                  <td className="py-4 px-4 text-gray-600">{exam.duration} min</td>
-                  <td className="py-4 px-4 text-gray-600">{exam.questions.length}</td>
-                 
-                  <td className="py-4 px-4">
-                    <div className="flex space-x-2">
-                      <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View Details">
-                        <Eye size={16} />
-                      </button>
-                      <button className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Edit Exam">
-                        <Edit size={16} />
-                      </button>
-                      <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Exam">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
+              {examList && examList.length > 0 ? (
+                examList.map((exam) => (
+                  <tr key={exam._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-4 font-mono text-sm bg-gray-100 rounded">
+                      {exam._id}
+                    </td>
+                    <td className="py-4 px-4 font-medium text-gray-800">{exam.title}</td>
+                    <td className="py-4 px-4 text-gray-600">{exam?.subject}</td>
+                    <td className="py-4 px-4 text-gray-600">{exam.duration} min</td>
+                    <td className="py-4 px-4 text-gray-600">{exam.questions.length}</td>
+                    <td className="py-4 px-4">
+                      <div className="flex space-x-2">
+                        <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View Details">
+                          <Eye size={16} />
+                        </button>
+                        <button className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Edit Exam">
+                          <Edit size={16} />
+                        </button>
+                        <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Exam">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-gray-500">
+                    No exam found
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

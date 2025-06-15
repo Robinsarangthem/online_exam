@@ -27,15 +27,21 @@ export default function LoginForms() {
     const {mutate: studentMutation, isPending: studentPending, isError: studentError} = useMutation({
       mutationFn: StudentLogin,
       onSuccess: (response) => {
-        console.log(response?.student);
-        toast.success('Student login successful');
-        localStorage.setItem("student", JSON.stringify(response?.student));
-        localStorage.setItem('user', JSON.stringify({ 
-          studentID: formData.studentID,
-          studentName: formData.studentName
-        }));
-        login()
-         window.location.href = '/';
+        // Check the structure of the response and log it for debugging
+        console.log('Student login response:', response);
+
+        // Try to access the student data from different possible response structures
+        const studentData = response?.student || response?.data?.student || response?.data;
+
+        if (studentData) {
+          login();
+          toast.success('Student login successful');
+          // Save student data to localStorage
+          localStorage.setItem('student', JSON.stringify(studentData));
+          window.location.href = '/';
+        } else {
+          toast.error('Student data not found in response');
+        }
       },
       onError: (error) => {
         toast.error('Student login failed');
@@ -47,11 +53,12 @@ export default function LoginForms() {
     mutationFn: AdminLogin,
     onSuccess: (response) => {
       console.log(response?.admin,"admin response");  
-      login();
       toast.success('Admin login successful');
       window.location.href = '/admin/dashboard';
+      login();
 
-      // localStorage.setItem('adminData', JSON.stringify({
+      // localStorage.setItem('adminData', JSON.stringify({response: response?.admin}));
+      // // navigate('/admin/dashboard', { state: { adminData: response?.admin, token: response?.token } });
         
       // }));
     },
@@ -158,7 +165,7 @@ export default function LoginForms() {
               </p>
             </div>
 
-            <div className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Student Login Fields */}
               {loginType === 'student' && (
                 <>
@@ -233,7 +240,6 @@ export default function LoginForms() {
               
 
                       <button
-                      onClick={handleSubmit}
                       type="submit"
                       className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
                         loginType === 'student'
@@ -254,7 +260,7 @@ export default function LoginForms() {
                         Login failed. Please try again.
                       </p>
                       )}
-                    </div>
+            </form>
 
                     {/* Additional Links */}
             <div className="mt-6 text-center">
