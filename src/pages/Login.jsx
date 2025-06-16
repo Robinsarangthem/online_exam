@@ -23,61 +23,51 @@ export default function LoginForms() {
       [e.target.name]: value
     });
   };
-
-   const {mutate: studentMutation, isPending: studentPending, isError: studentError} = useMutation({
+  // student login mutation
+  const { mutate: studentMutation,isPending:studentPending, isError:studentError } = useMutation({
   mutationFn: StudentLogin,
   onSuccess: (response) => {
-    console.log('Student login response:', response);
+    const studentData = response?.student || response?.data?.student || response?.data;
 
-    const studentData = response?.student || response?.data?.student || response?.data || response;
-    console.log('Extracted studentData:', studentData);
-
-    if (studentData && typeof studentData === 'object' && Object.keys(studentData).length > 0) {
-      toast.success('Student login successful');
-      localStorage.setItem('student', JSON.stringify(studentData));
-      login();
-      window.location.href = '/';
+    if (studentData && typeof studentData === 'object') {
+      localStorage.setItem('studentData', JSON.stringify(studentData));
+      login('student');
+      navigate('/');
     } else {
       toast.error('Student data not found in response');
-      console.error('Student data not found in response:', response);
+      console.error('Student login response invalid:', response);
     }
   },
   onError: (error) => {
-    console.error('Login failed - Full error object:', error);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
-    
-    // More specific error messages
-    if (error.message.includes('net::ERR_FAILED')) {
-      toast.error('Cannot connect to server. Please check your internet connection.');
-    } else if (error.message.includes('404')) {
-      toast.error('Login endpoint not found. Please contact support.');
-    } else if (error.message.includes('500')) {
-      toast.error('Server error. Please try again later.');
-    } else {
-      toast.error(`Login failed: ${error.message}`);
-    }
+    toast.error('Student login failed');
+    console.error('Student login error:', error);
   }
 });
 
-  const {mutate: adminMutation, isPending: adminPending, isError: adminError} = useMutation({
-    mutationFn: AdminLogin,
-    onSuccess: (response) => {
-      console.log(response?.admin,"admin response");  
-      toast.success('Admin login successful');
-      window.location.href = '/admin/dashboard';
-      login();
 
-      // localStorage.setItem('adminData', JSON.stringify({response: response?.admin}));
-      // // navigate('/admin/dashboard', { state: { adminData: response?.admin, token: response?.token } });
-        
-      // }));
-    },
-    onError: (error) => {
-      toast.error('Admin login failed');
-      console.error('Admin login failed:', error);
+
+
+  const { mutate: adminMutation , isPending:adminPending, isError:adminError } = useMutation({
+  mutationFn: AdminLogin,
+  onSuccess: (response) => {
+    const adminData = response?.teacher || response?.admin;
+    
+    if (adminData && typeof adminData === 'object') {
+      localStorage.setItem('adminData', JSON.stringify(adminData));
+      login('admin');
+      navigate('/admin/dashboard');
+    } else {
+      toast.error("Admin data not found in response");
+      console.error("Invalid admin data:", response);
     }
-  });
+  },
+  onError: (error) => {
+    toast.error('Admin login failed');
+    console.error('Admin login failed:', error);
+  }
+});
+  // Check pending and error states
+
 
   const isPending = studentPending || adminPending;
   const isError = studentError || adminError;

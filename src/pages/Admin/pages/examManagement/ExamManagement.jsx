@@ -24,30 +24,7 @@ export default function ExamManagement() {
     refetchOnWindowFocus: false,
   })
   console.log(examList,"exam Data");
-  // const handleCreateExam = () => {
-  //   if (newExam.title && newExam.subject && newExam.duration) {
-  //     const examId = `EX${String(exams.length + 1).padStart(3, '0')}`;
-  //     const exam = {
-  //       id: examId,
-  //       ...newExam,
-  //       status: 'Draft',
-  //       createdDate: new Date().toISOString().split('T')[0],
-  //       enrolledStudents: 0,
-  //       completedStudents: 0
-  //     };
-  //     setExams([...exams, exam]);
-  //     setNewExam({
-  //       title: '',
-  //       subject: '',
-  //       duration: '',
-  //       totalQuestions: '',
-  //       passingScore: '',
-  //       scheduledDate: '',
-  //       instructions: ''
-  //     });
-  //     setShowCreateForm(false);
-  //   }
-  // };
+  
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -83,7 +60,7 @@ export default function ExamManagement() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl">
             <h3 className="text-lg font-semibold mb-2">Total Exams</h3>
-            <p className="text-3xl font-bold">{examList?.length}</p> 
+            <p className="text-3xl font-bold">{examList?.data?.length}</p> 
           </div>
           {/* <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl">
             <h3 className="text-lg font-semibold mb-2">Active Exams</h3>
@@ -108,12 +85,12 @@ export default function ExamManagement() {
               </tr>
             </thead>
             <tbody>
-              {examList && examList.length > 0 ? (
-                examList.map((exam) => (
+              { examList?.data?.length > 0 ? (
+                examList?.data?.map((exam) => (
                   <tr key={exam._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-4 font-mono text-sm bg-gray-100 rounded">
-                      {exam._id}
-                    </td>
+                   <td className="py-4 px-4 font-mono text-sm bg-gray-100 rounded">
+                        {exam._id.slice(0, 5)}...
+                  </td>
                     <td className="py-4 px-4 font-medium text-gray-800">{exam.title}</td>
                     <td className="py-4 px-4 text-gray-600">{exam?.subject}</td>
                     <td className="py-4 px-4 text-gray-600">{exam.duration} min</td>

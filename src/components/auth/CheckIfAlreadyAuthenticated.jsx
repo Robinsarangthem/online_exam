@@ -1,12 +1,15 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 function CheckIfAlreadyAuthenticated() {
-  const { isAuthenticated } = useAuth();
-  console.log(isAuthenticated);
-  const location = useLocation();
-  console.log(location);
-  return !isAuthenticated ? <Outlet /> : <Navigate replace to={'/'} />;
+  const { isAuthenticated, role } = useAuth();
+
+  if (isAuthenticated) {
+    if (role === 'admin') return <Navigate to="/admin/dashboard" replace />;
+    if (role === 'student') return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
 }
 
 export default CheckIfAlreadyAuthenticated;

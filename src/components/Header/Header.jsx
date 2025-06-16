@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export default function Header({ examStarted,totalQuestions, answeredQuestions }) {
-    const studentIdentity = JSON.parse(localStorage.getItem('user'));
+    const studentIdentity = JSON.parse(localStorage.getItem('studentData')) || {};
     const [timeLeft, setTimeLeft] = useState(20 * 60); // 20 minutes in seconds
 
     useEffect(() => {
@@ -24,10 +24,7 @@ export default function Header({ examStarted,totalQuestions, answeredQuestions }
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
 
-    // Example: Calculate completed percentage (replace with your actual logic)
-    // For demonstration, let's assume you have props: totalQuestions, answeredQuestions
     const completedPercent = totalQuestions ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
-    // For now, we'll keep it at 5% as a placeholder
 
     return (
         <header className="bg-green-600 text-white px-4 sm:px-6 py-4">

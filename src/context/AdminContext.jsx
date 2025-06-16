@@ -1,49 +1,48 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 
 // Create the context
-const AdminContext = createContext();
+const AdminContext = createContext(null);
 
-// Create a provider component
+// Provider
 export const AdminProvider = ({ children }) => {
-    const [adminData, setAdminData] = useState({
-        adminData:JSON.parse(localStorage.getItem('adminData')) || {},
-    });
-  
-    // Function to update admin data
-    const updateAdminData = (data) => {
-        setAdminData(data);
-    };
+  const [adminData, setAdminData] = useState(() => {
+    const stored = localStorage.getItem('adminData');
+    return stored ? JSON.parse(stored) : null;
+  });
 
-    // Function to clear admin data (logout)
-    const clearAdminData = () => {
-        setAdminData({
-            isAuthenticated: false,
-            name: '',
-            email: '',
-            role: '',
-        });
-    };
+  // Keep localStorage in sync when adminData changes
+  useEffect(() => {
+    if (adminData) {
+      localStorage.setItem('adminData', JSON.stringify(adminData));
+    } else {
+      localStorage.removeItem('adminData');
+    }
+  }, [adminData]);
 
-    const value = {
-        adminData,
-        updateAdminData,
-        clearAdminData,
-    };
+  // Login / set admin data
+  const updateAdminData = (data) => {
+    setAdminData(data);
+  };
 
-    return (
-        <AdminContext.Provider value={value}>
-            {children}
-        </AdminContext.Provider>
-    );
+  // Logout
+  const clearAdminData = () => {
+    setAdminData(null);
+  };
+
+  return (
+    <AdminContext.Provider value={{ adminData, updateAdminData, clearAdminData }}>
+      {children}
+    </AdminContext.Provider>
+  );
 };
 
-// Custom hook to use admin context
+// Hook
 export const useAdmin = () => {
-    const context = useContext(AdminContext);
-    if (!context) {
-        throw new Error('useAdmin must be used within an AdminProvider');
-    }
-    return context;
+  const context = useContext(AdminContext);
+  if (!context) {
+    throw new Error('useAdmin must be used within an AdminProvider');
+  }
+  return context;
 };
 
 export default AdminContext;

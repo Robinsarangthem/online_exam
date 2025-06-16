@@ -18,12 +18,15 @@ export default function OnlineExamInterface({
   selectedExam,
   selectedSubject
 }) {
+  // console.log(question, "Current Question Data");
+  // console.log("Selected Exam:", selectedExam);
+  // console.log("Selected Subject:", selectedSubject);
   const navigate = useNavigate();
   const [isRecording, setIsRecording] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [violations, setViolations] = useState(0);
   
-  const studentRaw = localStorage.getItem("student");
+  const studentRaw = localStorage.getItem("studentData");
   let StudentId = null;
   try {
     StudentId = studentRaw ? JSON.parse(studentRaw) : null;
@@ -63,7 +66,7 @@ export default function OnlineExamInterface({
     const handleKeyDown = (e) => {
       const violationsList = [
         { key: 'F12', ctrl: false, shift: false },
-        { key: 'I', ctrl: true, shift: true },
+        // { key: 'I', ctrl: true, shift: true },
         { key: 'C', ctrl: true, shift: true },
         { key: 'u', ctrl: true, shift: false },
         { key: 'a', ctrl: true, shift: false },
@@ -330,7 +333,7 @@ export default function OnlineExamInterface({
 
                 <button
                   onClick={handleSubmit}
-                  disabled={Object.keys(selectedAnswer).length < totalQuestions || isPending}
+                  disabled={Object.keys(selectedAnswer).length > totalQuestions || isPending}
                   className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

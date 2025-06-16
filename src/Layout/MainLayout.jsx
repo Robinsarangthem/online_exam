@@ -10,26 +10,33 @@ export default function MainLayout() {
   const [selectedAnswer, setSelectedAnswer] = useState({});
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [flaggedQuestions, setFlaggedQuestions] = useState([]);
-  const [selectedSubject, setSelectedSubject] = useState(""); 
+  const [selectedSubject, setSelectedSubject] = useState("");
   const [remainingTime, setRemainingTime] = useState(0);
 
-  const {data, isLoading, isError} = useQuery({
+  const { data: examData, isLoading, isError } = useQuery({
     queryKey: ['exam-Questions'],
     queryFn: Examlist
   });
 
+  const exams = examData?.data || [];
+
   // Prepare subject list
-  const selectSubject = Array.isArray(data) && data.length > 0 ? data.map((subject) => subject) : [];
+  const selectSubject = exams;
 
   // Loading and error states
   if (isLoading) return (
     <div className="flex items-center justify-center min-h-screen">
-      <Loading/>
+      <Loading />
     </div>
   );
 
-  if (isError) return <div className="flex items-center justify-center min-h-screen text-rose-400">Error loading questions</div>;
-  if (!Array.isArray(data) || data.length === 0) {
+  if (isError) return (
+    <div className="flex items-center justify-center min-h-screen text-rose-400">
+      Error loading questions
+    </div>
+  );
+
+  if (!Array.isArray(exams) || exams.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
         <div className="bg-white shadow-lg rounded-lg p-8 flex flex-col items-center">
@@ -40,8 +47,8 @@ export default function MainLayout() {
             viewBox="0 0 48 48"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <circle cx="24" cy="24" r="22" strokeWidth="4" stroke="currentColor" fill="none"/>
-            <path d="M16 20h16M16 28h8" strokeWidth="3" strokeLinecap="round" stroke="currentColor"/>
+            <circle cx="24" cy="24" r="22" strokeWidth="4" stroke="currentColor" fill="none" />
+            <path d="M16 20h16M16 28h8" strokeWidth="3" strokeLinecap="round" stroke="currentColor" />
           </svg>
           <h2 className="text-2xl font-semibold text-gray-700 mb-2">No Exam Schedule</h2>
           <p className="text-gray-500 mb-4 text-center">
@@ -60,8 +67,8 @@ export default function MainLayout() {
   }
 
   // Get current subject's questions
-  const currentSubjectQuestions = selectedSubject 
-    ? (data.find(subject => subject._id === selectedSubject)?.questions || [])
+  const currentSubjectQuestions = selectedSubject
+    ? (exams.find(subject => subject._id === selectedSubject)?.questions || [])
     : [];
 
   // Handlers
@@ -96,8 +103,7 @@ export default function MainLayout() {
 
   // Exam start logic
   const startExam = (subjectId) => {
-    if (!Array.isArray(data) || data.length === 0) return;
-    const selectedExam = data.find(exam => exam._id === subjectId);
+    const selectedExam = exams.find(exam => exam._id === subjectId);
     if (selectedExam && selectedExam.duration) {
       setRemainingTime(selectedExam.duration * 60); // assuming duration is in minutes
     }
@@ -119,10 +125,16 @@ export default function MainLayout() {
   };
 
   return (
-    <div className="flex">
+    <div className="h-screen flex flex-col bg-gray-100">
+      <Header
+        totalQuestions={currentSubjectQuestions.length}
+        answeredQuestions={Object.keys(selectedAnswer).length}
+        examStarted={remainingTime > 0}
+        />
+        <div className="flex flex-1 min-h-0">
       <Sidebar
         selectSubject={selectSubject}
-        selectedSubject={selectedSubject} 
+        selectedSubject={selectedSubject}
         handleSelectSubject={handleSelectSubjectWithStart}
         flaggedQuestions={flaggedQuestions}
         currentQuestion={currentQuestion}
@@ -130,9 +142,12 @@ export default function MainLayout() {
         setFlaggedQuestions={setFlaggedQuestions}
         selectedAnswer={selectedAnswer}
         setSelectedAnswer={setSelectedAnswer}
+        currentQuestions={currentSubjectQuestions}
+        totalQuestions={currentSubjectQuestions.length}
+        setRemainingTime={setRemainingTime}
       />
 
-      <OnlineExamInterface 
+      <OnlineExamInterface
         handleNext={handleNext}
         question={question}
         handlePrevious={handlePrevious}
@@ -143,14 +158,11 @@ export default function MainLayout() {
         selectedAnswer={selectedAnswer}
         totalQuestions={currentSubjectQuestions.length}
         selectedSubject={selectedSubject}
-        selectedExam={
-          Array.isArray(data) && data.length > 0
-            ? (data.find(exam => exam._id === selectedSubject) || {})
-            : {}
-        }
+        selectedExam={exams.find(exam => exam._id === selectedSubject) || {}}
         answeredQuestions={Object.keys(selectedAnswer).length}
         remainingTime={remainingTime}
       />
+      </div>
     </div>
   );
 }

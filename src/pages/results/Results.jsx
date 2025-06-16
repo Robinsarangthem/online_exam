@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { ExamResult } from "../../api/apiService";
 import { Home, RefreshCw, Eye } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 const AnimatedPercentage = ({ value }) => {
     const [display, setDisplay] = useState(0);
@@ -36,7 +37,10 @@ const Results = ({ score, totalQuestions, onRestart }) => {
         queryKey: ['exam-result', resultId?.resultId],
         queryFn: () => ExamResult(resultId?.resultId)
     });
-
+    const {logout} = useAuth()
+    const handleReturnHome = () => {
+        logout()
+    }
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
@@ -98,7 +102,7 @@ const Results = ({ score, totalQuestions, onRestart }) => {
                     <div className="w-full border-t border-gray-200 my-6"></div>
                     <div className="flex flex-col sm:flex-row gap-4 w-full">
                         <button
-                            onClick={onRestart}
+                            onClick={handleReturnHome}
                             className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white rounded-full shadow-lg hover:scale-105 hover:from-blue-600 hover:to-pink-600 transition-all duration-300 flex items-center justify-center gap-2 font-semibold text-lg"
                         >
                             <Home className="inline" />
