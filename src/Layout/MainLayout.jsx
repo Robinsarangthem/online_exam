@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import OnlineExamInterface from "../pages/OnlineExamInterface";
 import { useQuery } from "@tanstack/react-query";
 import { Examlist } from "../api/apiService";
@@ -13,9 +13,13 @@ export default function MainLayout() {
   const [selectedSubject, setSelectedSubject] = useState("");
   const [remainingTime, setRemainingTime] = useState(0);
 
-  const { data: examData, isLoading, isError } = useQuery({
-    queryKey: ['exam-Questions'],
-    queryFn: Examlist
+  const {
+    data: examData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["exam-Questions"],
+    queryFn: Examlist,
   });
 
   const exams = examData?.data || [];
@@ -24,17 +28,19 @@ export default function MainLayout() {
   const selectSubject = exams;
 
   // Loading and error states
-  if (isLoading) return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Loading />
-    </div>
-  );
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loading />
+      </div>
+    );
 
-  if (isError) return (
-    <div className="flex items-center justify-center min-h-screen text-rose-400">
-      Error loading questions
-    </div>
-  );
+  if (isError)
+    return (
+      <div className="flex items-center justify-center min-h-screen text-rose-400">
+        Error loading questions
+      </div>
+    );
 
   if (!Array.isArray(exams) || exams.length === 0) {
     return (
@@ -47,12 +53,27 @@ export default function MainLayout() {
             viewBox="0 0 48 48"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <circle cx="24" cy="24" r="22" strokeWidth="4" stroke="currentColor" fill="none" />
-            <path d="M16 20h16M16 28h8" strokeWidth="3" strokeLinecap="round" stroke="currentColor" />
+            <circle
+              cx="24"
+              cy="24"
+              r="22"
+              strokeWidth="4"
+              stroke="currentColor"
+              fill="none"
+            />
+            <path
+              d="M16 20h16M16 28h8"
+              strokeWidth="3"
+              strokeLinecap="round"
+              stroke="currentColor"
+            />
           </svg>
-          <h2 className="text-2xl font-semibold text-gray-700 mb-2">No Exam Schedule</h2>
+          <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+            No Exam Schedule
+          </h2>
           <p className="text-gray-500 mb-4 text-center">
-            There are currently no questions available for this exam.<br />
+            There are currently no questions available for this exam.
+            <br />
             Please check back later or contact your administrator.
           </p>
           <button
@@ -68,7 +89,7 @@ export default function MainLayout() {
 
   // Get current subject's questions
   const currentSubjectQuestions = selectedSubject
-    ? (exams.find(subject => subject._id === selectedSubject)?.questions || [])
+    ? exams.find((subject) => subject._id === selectedSubject)?.questions || []
     : [];
 
   // Handlers
@@ -88,7 +109,9 @@ export default function MainLayout() {
   const handleFlag = () => {
     const isAlreadyFlagged = flaggedQuestions.includes(currentQuestion);
     if (isAlreadyFlagged) {
-      setFlaggedQuestions(flaggedQuestions.filter(q => q !== currentQuestion));
+      setFlaggedQuestions(
+        flaggedQuestions.filter((q) => q !== currentQuestion)
+      );
     } else {
       setFlaggedQuestions([...flaggedQuestions, currentQuestion]);
     }
@@ -103,7 +126,7 @@ export default function MainLayout() {
 
   // Exam start logic
   const startExam = (subjectId) => {
-    const selectedExam = exams.find(exam => exam._id === subjectId);
+    const selectedExam = exams.find((exam) => exam._id === subjectId);
     if (selectedExam && selectedExam.duration) {
       setRemainingTime(selectedExam.duration * 60); // assuming duration is in minutes
     }
@@ -124,44 +147,50 @@ export default function MainLayout() {
     }
   };
 
+  // Timer countdown logic
+
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <Header
         totalQuestions={currentSubjectQuestions.length}
         answeredQuestions={Object.keys(selectedAnswer).length}
         examStarted={remainingTime > 0}
-        />
-        <div className="flex flex-1 min-h-0">
-      <Sidebar
-        selectSubject={selectSubject}
-        selectedSubject={selectedSubject}
-        handleSelectSubject={handleSelectSubjectWithStart}
-        flaggedQuestions={flaggedQuestions}
-        currentQuestion={currentQuestion}
-        setCurrentQuestion={setCurrentQuestion}
-        setFlaggedQuestions={setFlaggedQuestions}
-        selectedAnswer={selectedAnswer}
-        setSelectedAnswer={setSelectedAnswer}
-        currentQuestions={currentSubjectQuestions}
-        totalQuestions={currentSubjectQuestions.length}
+        remainingTime={remainingTime}
         setRemainingTime={setRemainingTime}
       />
+      <div className="flex flex-1 min-h-0">
+        <Sidebar
+          selectSubject={selectSubject}
+          selectedSubject={selectedSubject}
+          handleSelectSubject={handleSelectSubjectWithStart}
+          flaggedQuestions={flaggedQuestions}
+          currentQuestion={currentQuestion}
+          setCurrentQuestion={setCurrentQuestion}
+          setFlaggedQuestions={setFlaggedQuestions}
+          selectedAnswer={selectedAnswer}
+          setSelectedAnswer={setSelectedAnswer}
+          currentQuestions={currentSubjectQuestions}
+          totalQuestions={currentSubjectQuestions.length}
+          setRemainingTime={setRemainingTime}
+        />
 
-      <OnlineExamInterface
-        handleNext={handleNext}
-        question={question}
-        handlePrevious={handlePrevious}
-        handleFlag={handleFlag}
-        flaggedQuestions={flaggedQuestions}
-        currentQuestion={currentQuestion}
-        handleAnswerSelect={handleAnswerSelect}
-        selectedAnswer={selectedAnswer}
-        totalQuestions={currentSubjectQuestions.length}
-        selectedSubject={selectedSubject}
-        selectedExam={exams.find(exam => exam._id === selectedSubject) || {}}
-        answeredQuestions={Object.keys(selectedAnswer).length}
-        remainingTime={remainingTime}
-      />
+        <OnlineExamInterface
+          handleNext={handleNext}
+          question={question}
+          handlePrevious={handlePrevious}
+          handleFlag={handleFlag}
+          flaggedQuestions={flaggedQuestions}
+          currentQuestion={currentQuestion}
+          handleAnswerSelect={handleAnswerSelect}
+          selectedAnswer={selectedAnswer}
+          totalQuestions={currentSubjectQuestions.length}
+          selectedSubject={selectedSubject}
+          selectedExam={
+            exams.find((exam) => exam._id === selectedSubject) || {}
+          }
+          answeredQuestions={Object.keys(selectedAnswer).length}
+          remainingTime={remainingTime > 0 ? remainingTime : 0}
+        />
       </div>
     </div>
   );

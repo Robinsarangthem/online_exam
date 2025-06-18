@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect } from "react";
 
 // Create the context
 const AdminContext = createContext(null);
@@ -6,16 +6,16 @@ const AdminContext = createContext(null);
 // Provider
 export const AdminProvider = ({ children }) => {
   const [adminData, setAdminData] = useState(() => {
-    const stored = localStorage.getItem('adminData');
+    const stored = localStorage.getItem("adminData");
     return stored ? JSON.parse(stored) : null;
   });
 
   // Keep localStorage in sync when adminData changes
   useEffect(() => {
     if (adminData) {
-      localStorage.setItem('adminData', JSON.stringify(adminData));
+      localStorage.setItem("adminData", JSON.stringify(adminData));
     } else {
-      localStorage.removeItem('adminData');
+      localStorage.removeItem("adminData");
     }
   }, [adminData]);
 
@@ -30,7 +30,9 @@ export const AdminProvider = ({ children }) => {
   };
 
   return (
-    <AdminContext.Provider value={{ adminData, updateAdminData, clearAdminData }}>
+    <AdminContext.Provider
+      value={{ adminData, updateAdminData, clearAdminData }}
+    >
       {children}
     </AdminContext.Provider>
   );
@@ -40,7 +42,7 @@ export const AdminProvider = ({ children }) => {
 export const useAdmin = () => {
   const context = useContext(AdminContext);
   if (!context) {
-    throw new Error('useAdmin must be used within an AdminProvider');
+    throw new Error("useAdmin must be used within an AdminProvider");
   }
   return context;
 };

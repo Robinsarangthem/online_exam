@@ -95,3 +95,45 @@ export const getAllExamResults = async () => {
     throw new Error("Failed to fetch exam results");
   }
 };
+
+export const addStudentRegister = async (studentData) => {
+  return Axios.post("/api/student/register", studentData)
+    .then((response) => {
+      console.log("Student added successfully:", response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      console.error("Failed to add student:", error);
+      throw error;
+    });
+};
+export const getStudentList = async () => {
+  try {
+    const response = await Axios.get("/api/student/list");
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch student list:", error);
+    throw error;
+  }
+};
+export const updateStudent = async (studentId, studentData) => {
+  try {
+    const response = await Axios.put(
+      `/api/student/edit/${studentId}`,
+      studentData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to edit student:", error);
+    throw error;
+  }
+};
+export const deleteStudent = async (studentId) => {
+  try {
+    const response = await Axios.delete(`/api/student/delete/${studentId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to delete student:", error);
+    throw error;
+  }
+};

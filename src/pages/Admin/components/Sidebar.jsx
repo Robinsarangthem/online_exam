@@ -1,13 +1,12 @@
 import {
-  Users,
-  BookOpen,
-  FileText,
   BarChart3,
-  Settings,
+  BookOpen,
   Home,
   LogOut,
+  Settings,
+  Users,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 
@@ -20,23 +19,23 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "exam-questions", label: "Exams", icon: BookOpen },
-    { id: "questions", label: "Questions", icon: FileText },
-    { id: "students", label: "Students", icon: Users },
+    // { id: "questions", label: "Questions", icon: FileText },
+    { id: "students-list", label: "Students", icon: Users },
     { id: "all-results", label: "Results", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings },
     { label: "Logout", icon: LogOut },
   ];
 
+  localStorage.getItem("activeTab") || "dashboard";
+
   useEffect(() => {
-    const savedTab = localStorage.getItem("activeTab");
-    if (savedTab) {
-      setActiveTab(savedTab);
-    } else {
-      setActiveTab("dashboard"); // fallback default
-    }
-  }, []);
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
 
   const handleLogout = () => {
+    localStorage.removeItem("activeTab");
+    localStorage.removeItem("adminData");
+    localStorage.removeItem("studentData");
     logout();
     navigate("/auth/login", { replace: true });
   };
