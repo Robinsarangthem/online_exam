@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { SubmitExam } from "../api/apiService";
-import { useNavigate } from "react-router-dom";
 import { BookOpen } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { SubmitExam } from "../api/apiService";
 
 export default function OnlineExamInterface({
   question,
@@ -18,7 +18,13 @@ export default function OnlineExamInterface({
   selectedExam,
   selectedSubject,
   remainingTime,
+  examDuration, // Default to 0 if not provided
+  setRemainingTime,
+  isExamActive,
 }) {
+  console.log(examDuration, "Exam Duration");
+  console.log(remainingTime, "Remaining Time");
+  // console.log(selectedExam, "Selected Exam Data");
   // console.log(question, "Current Question Data");
   // console.log("Selected Exam:", selectedExam);
   // console.log("Selected Subject:", selectedSubject);
@@ -36,7 +42,7 @@ export default function OnlineExamInterface({
   }
 
   // Submit exam mutation
-  const { mutate: submitExam, isPending } = useMutation({
+  const { mutate: submitExam, isPending: isSubmit } = useMutation({
     mutationFn: (examData) =>
       SubmitExam(examData.examId, examData.studentId, examData.answers),
     onSuccess: (data) => {
@@ -45,6 +51,8 @@ export default function OnlineExamInterface({
         replace: true,
         state: {
           remainingTime,
+          examDuration,
+          // examId: selectedExam._id,
         },
       });
     },
@@ -68,7 +76,7 @@ export default function OnlineExamInterface({
     const handleKeyDown = (e) => {
       const violationsList = [
         { key: "F12", ctrl: false, shift: false },
-        // { key: 'I', ctrl: true, shift: true },
+        { key: "I", ctrl: true, shift: true },
         { key: "C", ctrl: true, shift: true },
         { key: "u", ctrl: true, shift: false },
         { key: "a", ctrl: true, shift: false },
@@ -158,6 +166,14 @@ export default function OnlineExamInterface({
       }
     };
   }, []);
+
+  // Auto submit when time's up
+  useEffect(() => {
+    if (isExamActive && remainingTime === 0 && !isSubmit) {
+      handleSubmit();
+    }
+    // eslint-disable-next-line
+  }, [remainingTime, isExamActive, isSubmit]);
 
   const handleSubmit = () => {
     if (!selectedExam?._id) {
@@ -411,8 +427,8 @@ export default function OnlineExamInterface({
                 <button
                   onClick={handleSubmit}
                   disabled={
-                    Object.keys(selectedAnswer)?.length > totalQuestions ||
-                    isPending
+                    Object.keys(selectedAnswer)?.length < totalQuestions ||
+                    isSubmit
                   }
                   className="flex items-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >

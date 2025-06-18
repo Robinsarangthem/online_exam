@@ -66,6 +66,7 @@ export default function LoginForms() {
       if (adminData) {
         localStorage.setItem("adminData", JSON.stringify(adminData));
         login("admin");
+        toast.success("Admin login successful");
         navigate("/admin/dashboard");
       } else {
         toast.error("Admin data not found in response");

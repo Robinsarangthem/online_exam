@@ -36,11 +36,11 @@ const AnimatedPercentage = ({ value }) => {
 
 const Results = ({ score, totalQuestions, onRestart }) => {
   const resultId = useParams();
-  console.log(resultId);
   const navigate = useNavigate();
   const location = useLocation();
-  const [remainingTime, setRemainingTime] = useState(0);
+
   const [isReviewDisabled, setIsReviewDisabled] = useState(true);
+  const [remainingTime, setRemainingTime] = useState(0);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["exam-result", resultId?.resultId],
@@ -62,33 +62,44 @@ const Results = ({ score, totalQuestions, onRestart }) => {
 
   // Initialize remaining time and handle countdown in single effect
   useEffect(() => {
-    const { remainingTime: initialRemainingTime } = location.state || {};
+    const fromState = location.state?.remainingTime;
+    const fromStorage = localStorage.getItem("remainingTime");
 
-    if (initialRemainingTime && initialRemainingTime > 0) {
-      setRemainingTime(initialRemainingTime);
+    const initialTime = fromState ?? Number(fromStorage);
+
+    if (initialTime && initialTime > 0) {
+      setRemainingTime(initialTime);
       setIsReviewDisabled(true);
+      localStorage.setItem("remainingTime", initialTime);
 
       const timer = setInterval(() => {
         setRemainingTime((prevTime) => {
           const newTime = prevTime - 1;
+
           if (newTime <= 0) {
+            clearInterval(timer);
+            localStorage.removeItem("remainingTime");
             setIsReviewDisabled(false);
             return 0;
           }
+
+          localStorage.setItem("remainingTime", newTime);
           return newTime;
         });
       }, 1000);
 
       return () => clearInterval(timer);
     } else {
-      // If no remaining time from location state, check if data is available
-      // This handles refresh scenario where location.state is lost
+      // No remainingTime (possibly after refresh or expired countdown)
+      localStorage.removeItem("remainingTime");
       if (data) {
         setRemainingTime(0);
         setIsReviewDisabled(false);
       }
     }
   }, [location.state, data]);
+
+  console.log(remainingTime, "Remaining Time");
 
   const handleReturnHome = () => {
     logout();

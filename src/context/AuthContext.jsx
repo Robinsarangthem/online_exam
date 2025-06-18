@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     if (userRole === "admin") {
       localStorage.setItem("admin", true);
     } else {
-      localStorage.setItem("studentData", true);
+      localStorage.setItem("student", true);
     }
   };
 
