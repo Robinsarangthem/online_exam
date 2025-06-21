@@ -443,7 +443,7 @@ export default function OnlineExamInterface({
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span>{isPending ? "Submitting..." : "Submit"}</span>
+                  <span>{isSubmit ? "Submitting..." : "Submit"}</span>
                 </button>
               </div>
             </div>
